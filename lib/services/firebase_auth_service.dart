@@ -11,16 +11,29 @@ class AuthService {
     required BuildContext context,
   }) async {
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      UserCredential user = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
 
-      await Future.delayed(const Duration(seconds: 1));
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (BuildContext context) => Login()),
-      );
+      if (user.user != null) {
+        await Future.delayed(const Duration(seconds: 1));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (BuildContext context) => Login()),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Đăng ký người dùng thành công'),
+            backgroundColor: const Color(0xff0D6EFD),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Đăng ký người dùng thất bại'),
+            backgroundColor: const Color(0xff0D6EFD),
+          ),
+        );
+      }
     } on FirebaseAuthException catch (e) {
       String message = '';
       if (e.code == 'weak-password') {
